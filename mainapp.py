@@ -13,7 +13,8 @@ if filtered_services:
             feedback_list = st.session_state["feedbacks"][s['service']]
             if feedback_list:
                 avg_rating = sum(fb['rating'] for fb in feedback_list) / len(feedback_list)
-                st.write(f"⭐ Average Rating: {avg_rating:.1f}/5")
+                stars = "⭐" * int(round(avg_rating))  # star display
+                st.write(f"⭐ Average Rating: {avg_rating:.1f}/5 {stars}")
                 st.write("💬 Feedback:")
                 for fb in feedback_list:
                     st.write(f"- {fb['rating']} stars: {fb['comment']}")
