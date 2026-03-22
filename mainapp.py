@@ -1,30 +1,61 @@
 import streamlit as st
 
+# Page setup
 st.set_page_config(page_title="Neighbor-Tech Support", page_icon="💻", layout="wide")
 
 st.title("Neighbor-Tech Support")
 st.write("Find affordable tech help right in your neighborhood!")
 
-# Sample services
-services = [
-    {"name": "Windows Update", "provider": "Ravi Kumar", "price": "₹500"},
-    {"name": "Screen Guard Installation", "provider": "Anita Sharma", "price": "₹150"},
-    {"name": "Laptop Cleaning", "provider": "Suresh Patil", "price": "₹300"},
-]
+# Storage for services (in memory for now)
+if "services" not in st.session_state:
+    st.session_state["services"] = []
 
-# Search bar
-search_query = st.text_input("🔍 Search for a service")
+# --- Registration Form ---
+st.header("📝 Register as a Service Provider")
+with st.form("register_form"):
+    name = st.text_input("Your Name")
+    service = st.text_input("Service Offered")
+    price = st.text_input("Price (₹)")
+    dgpin = st.text_input("DGPIN Code")
+    contact = st.text_input("Contact Number")
+    submitted = st.form_submit_button("Register Service")
+    if submitted and name and service and price and dgpin and contact:
+        st.session_state["services"].append({
+            "name": name,
+            "service": service,
+            "price": price,
+            "dgpin": dgpin,
+            "contact": contact
+        })
+        st.success(f"✅ {service} registered successfully!")
 
-# Filter services
-if search_query:
-    filtered = [s for s in services if search_query.lower() in s["name"].lower()]
+# --- Search & Location Filter ---
+st.header("🔍 Find Services")
+user_dgpin = st.text_input("Enter your DGPIN to search nearby services")
+search_query = st.text_input("Search for a service")
+
+filtered_services = []
+for s in st.session_state["services"]:
+    if (not search_query or search_query.lower() in s["service"].lower()):
+        if (not user_dgpin or user_dgpin == s["dgpin"]):  # simple filter: same DGPIN
+            filtered_services.append(s)
+
+# --- Show Services ---
+st.subheader("Available Services")
+if filtered_services:
+    for idx, s in enumerate(filtered_services):
+        st.write(f"**{s['service']}**")
+        st.write(f"👨‍🔧 Provider: {s['name']}")
+        st.write(f"💸 Price: {s['price']}")
+        st.write(f"📍 DGPIN: {s['dgpin']}")
+        if st.button(f"Book Now - {s['service']}", key=f"book_{idx}"):
+            st.success(f"✅ You booked {s['service']} from {s['name']}!")
+            st.info(f"📞 Contact Number: {s['contact']}")
+
+            # Feedback form
+            rating = st.slider("Rate the service (1-5)", 1, 5)
+            feedback = st.text_area("Leave feedback")
+            if st.button("Submit Feedback", key=f"feedback_{idx}"):
+                st.success("Thank you for your feedback!")
 else:
-    filtered = services
-
-# Show services
-for service in filtered:
-    st.subheader(service["name"])
-    st.write(f"👨‍🔧 Provider: {service['provider']}")
-    st.write(f"💸 Price: {service['price']}")
-    if st.button(f"Book Now - {service['name']}"):
-        st.success(f"✅ You booked {service['name']} from {service['provider']}!")
+    st.warning("No services found. Try registering or searching with another DGPIN.")
