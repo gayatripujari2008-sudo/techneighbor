@@ -48,6 +48,8 @@ if filtered_services:
         st.write(f"👨‍🔧 Provider: {s['name']}")
         st.write(f"💸 Price: {s['price']}")
         st.write(f"📍 DGPIN: {s['dgpin']}")
+        st.write(f"📞 Contact: {s['contact']}")  # <-- Contact now shown directly
+
         if st.button(f"Book Now - {s['service']}", key=f"book_{idx}"):
             st.success(f"✅ You booked {s['service']} from {s['name']}!")
             st.info(f"📞 Contact Number: {s['contact']}")
